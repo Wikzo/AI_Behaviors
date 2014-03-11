@@ -58,9 +58,11 @@ namespace _1Behaviour_Demo
             Texture2D arrowTexture = Content.Load<Texture2D>("arrow");
 
             Actor leader = new Actor(new Color(64, 255, 64), arrowTexture);
-            leader.Speed = 10;
+            leader.Speed = 1;
             leader.Direction = Actor.GetRandomDirection();
             leader.Position = Actor.GetRandomPosition(ScreenWidth, ScreenHeight);
+            leader.BehaviorList.Add(new BehaviorConstant(0.1f, new Vector2(1f, 0)));
+            leader.BehaviorList.Add(new BehaviorGamePad(0.5f));
         }
 
         /// <summary>
@@ -69,7 +71,6 @@ namespace _1Behaviour_Demo
         /// </summary>
         protected override void UnloadContent()
         {
-            // TODO: Unload any non ContentManager content here
         }
 
         /// <summary>

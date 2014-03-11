@@ -19,6 +19,7 @@ namespace _1Behaviour_Demo
         public Vector2 Direction; // unit vector, point in a direction to move in conjunction with Speed
         public float Speed;
         public Vector2 Origin;
+        public List<Behavior> BehaviorList = new List<Behavior>();
 
         public static Vector2 GetRandomPosition(int rangeX, int rangeY)
         {
@@ -43,11 +44,18 @@ namespace _1Behaviour_Demo
             this.Origin = new Vector2(texture.Width / 2, texture.Height / 2);
 
             this.Position = new Vector2(Game1.ScreenWidth / 2,  Game1.ScreenHeight / 2);
-            this.Direction = new Vector2(-1, 0);
+            this.Direction = new Vector2(0, -1);
         }
 
         public void Update()
         {
+            foreach (Behavior behavior in BehaviorList)
+                behavior.Update(this);
+        
+            // normalize direction
+            if (this.Direction.Length() > 0f)
+                this.Direction.Normalize();
+
             this.Position += this.Direction * this.Speed;
         }
 
