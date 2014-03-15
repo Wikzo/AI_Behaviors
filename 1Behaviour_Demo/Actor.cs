@@ -19,6 +19,8 @@ namespace _1Behaviour_Demo
         public Vector2 Direction; // unit vector, point in a direction to move in conjunction with Speed
         public float Speed;
         public Vector2 Origin;
+        public float DrawDepth;
+        public bool IsPlayer;
         public List<Behavior> BehaviorList = new List<Behavior>();
 
         public static Vector2 GetRandomPosition(int rangeX, int rangeY)
@@ -35,6 +37,22 @@ namespace _1Behaviour_Demo
             return new Vector2((float)Math.Cos(rotation), (float)Math.Sin(rotation));
         }
 
+        public static float GetRandomSpeed(double min, double max)
+        {
+            double r = random.NextDouble() * (max - min) + min;
+            return (float)r;
+        }
+
+        public static Color GetRandomColor()
+        {
+            byte red = (byte)random.Next(0, 255);
+            byte green = (byte)random.Next(0, 255);
+            byte blue = (byte)random.Next(0, 255);
+
+            int bw = (red + green + blue)/3;
+            return new Color(bw, bw, bw);
+        }
+
         public Actor(Color color, Texture2D texture)
         {
             Actors.Add(this);
@@ -42,6 +60,8 @@ namespace _1Behaviour_Demo
             this.Color = color;
             this.Texture = texture;
             this.Origin = new Vector2(texture.Width / 2, texture.Height / 2);
+            this.DrawDepth = 1;
+            this.IsPlayer = false;
 
             this.Position = new Vector2(Game1.ScreenWidth / 2,  Game1.ScreenHeight / 2);
             this.Direction = new Vector2(0, -1);
@@ -65,7 +85,7 @@ namespace _1Behaviour_Demo
             float rotation = (float) Math.Atan2(this.Direction.Y, this.Direction.X);// +MathHelper.PiOver2; // add 90 degree offset to orientate sprite correctly
             
             spriteBatch.Draw(this.Texture, this.Position, null, this.Color, rotation, this.Origin, 1f,
-                             SpriteEffects.None, 0f);
+                             SpriteEffects.None, this.DrawDepth);
 
             // screen wrapping physically
             if (Position.X < -Texture.Width) Position.X += Game1.ScreenWidth;
@@ -80,13 +100,13 @@ namespace _1Behaviour_Demo
             {
                 spriteBatch.Draw(this.Texture, new Vector2(this.Position.X + Game1.ScreenWidth, this.Position.Y), 
                     null, this.Color, rotation, this.Origin, 1f,
-                             SpriteEffects.None, 0f);
+                             SpriteEffects.None, this.DrawDepth);
             }
             else if (this.Position.X + this.Texture.Width > Game1.ScreenWidth)
             {
                 spriteBatch.Draw(this.Texture, new Vector2(this.Position.X - Game1.ScreenWidth, this.Position.Y),
                     null, this.Color, rotation, this.Origin, 1f,
-                             SpriteEffects.None, 0f);
+                             SpriteEffects.None, this.DrawDepth);
             }
 
             // check vertical screen wrapping
@@ -95,13 +115,13 @@ namespace _1Behaviour_Demo
 
                 spriteBatch.Draw(this.Texture, new Vector2(this.Position.X, this.Position.Y + Game1.ScreenHeight),
                     null, this.Color, rotation, this.Origin, 1f,
-                             SpriteEffects.None, 0f);
+                             SpriteEffects.None, this.DrawDepth);
             }
             else if (this.Position.Y + this.Texture.Height > Game1.ScreenHeight)
             {
                 spriteBatch.Draw(this.Texture, new Vector2(this.Position.X, this.Position.Y - Game1.ScreenHeight),
                     null, this.Color, rotation, this.Origin, 1f,
-                             SpriteEffects.None, 0f);
+                             SpriteEffects.None, this.DrawDepth);
             }
 
             // SCREEN WRAPPING VISUAL END ------------------------

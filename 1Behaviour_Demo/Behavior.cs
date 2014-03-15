@@ -47,4 +47,49 @@ namespace _1Behaviour_Demo
                 actor.Direction += padState.ThumbSticks.Left * new Vector2(1, -1) * this.Weight; // Y needs to be inverted so character moves upwards
         }
     }
+
+    class BehaviorWander : Behavior
+    {
+        // similar to BehaviorConstant. However, after a set interval it finds a new random direction to move in
+
+        //private static Random random = new Random();
+
+        private int changeInterval;
+        private int tick; // accumulates updates
+        private Vector2 direction;
+
+        public BehaviorWander(float weight, int changeInterval) : base(weight)
+        {
+            this.changeInterval = changeInterval;
+        }
+
+        public override void Update(Actor actor)
+        {
+            if (tick == 0) // when time is up, find new direction
+                this.direction = Actor.GetRandomDirection();
+
+            tick++;
+            tick %= this.changeInterval; // tick goes from 0 to changeInterval
+
+            actor.Direction += this.direction * this.Weight;
+        }
+    }
+
+    class BehavoirSeek : Behavior
+    {
+        private Actor target;
+
+        public BehavoirSeek(float weight, Actor target) : base(weight)
+        {
+            this.target = target;
+        }
+
+        public override void Update(Actor actor)
+        {
+            Vector2 targetDirection = target.Position - actor.Position;
+            targetDirection.Normalize(); // unit vector - http://www.fundza.com/vectors/normalize/
+            
+            actor.Direction += targetDirection * this.Weight;
+        }
+    }
 }

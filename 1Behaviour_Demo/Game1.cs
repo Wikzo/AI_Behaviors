@@ -19,6 +19,9 @@ namespace _1Behaviour_Demo
     {
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
+        private SpriteFont font;
+
+        private FPSCounter fpsCounter;
 
         public static int ScreenWidth = 800;
         public static int ScreenHeight = 600;
@@ -31,6 +34,9 @@ namespace _1Behaviour_Demo
             graphics.PreferredBackBufferHeight = ScreenHeight;
 
             Content.RootDirectory = "Content";
+
+            //this.TargetElapsedTime = TimeSpan.FromSeconds(1.0f / 100.0f); // set update interval to 100 FPS. Default is 60
+
         }
 
         /// <summary>
@@ -55,14 +61,37 @@ namespace _1Behaviour_Demo
             // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
+            font = Content.Load<Microsoft.Xna.Framework.Graphics.SpriteFont>("Tahoma");
+
+            fpsCounter = new FPSCounter(this, spriteBatch, font);
+
             Texture2D arrowTexture = Content.Load<Texture2D>("arrow");
 
+            // set up leader actor
             Actor leader = new Actor(new Color(64, 255, 64), arrowTexture);
-            leader.Speed = 1;
+            leader.Speed = 4;
+            leader.DrawDepth = 0f;
+            leader.IsPlayer = true;
             leader.Direction = Actor.GetRandomDirection();
             leader.Position = Actor.GetRandomPosition(ScreenWidth, ScreenHeight);
-            leader.BehaviorList.Add(new BehaviorConstant(0.1f, new Vector2(1f, 0)));
+            //leader.BehaviorList.Add(new BehaviorConstant(0.1f, new Vector2(1f, 0)));
             leader.BehaviorList.Add(new BehaviorGamePad(0.5f));
+            leader.BehaviorList.Add(new BehaviorWander(0.05f, 60)); // if framerate is 60 FPS, then change direction once every second
+
+            // set up a 10 drone actors
+            BehavoirSeek seek = new BehavoirSeek(0.05f, leader);
+
+            for (int i = 0; i < 100; i++)
+            {
+                Actor drone = new Actor(Color.White, arrowTexture);
+                drone.Color = Actor.GetRandomColor();
+                drone.Speed = Actor.GetRandomSpeed(0.7d, 3.5d);
+                drone.Direction = Actor.GetRandomDirection();
+                drone.Position = Actor.GetRandomPosition(ScreenWidth, ScreenHeight);
+                drone.BehaviorList.Add(seek);
+                drone.BehaviorList.Add(new BehaviorWander(0.03f, 15));
+            }
+            
         }
 
         /// <summary>
@@ -83,11 +112,27 @@ namespace _1Behaviour_Demo
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
 
+            // manipulate the swarm by pressing B
+            if (GamePad.GetState(PlayerIndex.One).IsButtonDown(Buttons.B))
+            {
+                foreach (Actor a in Actor.Actors)
+
+                    if (a.IsPlayer) // dont manipulate the player
+                        continue;
+                    else
+                    {
+                        //a.Position = Actor.GetRandomPosition(ScreenWidth, ScreenHeight);
+                        a.Position += a.Direction*-3;
+                    }
+
+            }
+
             foreach (var actor in Actor.Actors)
             {
+                
                 actor.Update();
 
-                if (Keyboard.GetState().IsKeyDown(Keys.Left))
+                /*if (Keyboard.GetState().IsKeyDown(Keys.Left))
                     actor.Position += new Vector2(-1, 0);
 
                 if (Keyboard.GetState().IsKeyDown(Keys.Right))
@@ -97,8 +142,16 @@ namespace _1Behaviour_Demo
                     actor.Position += new Vector2(0, -1);
 
                 if (Keyboard.GetState().IsKeyDown(Keys.Down))
-                    actor.Position += new Vector2(0, 1);
+                    actor.Position += new Vector2(0, 1);*/
             }
+
+            if (GamePad.GetState(PlayerIndex.One).Triggers.Right >= 0.2f)
+                this.TargetElapsedTime = TimeSpan.FromSeconds(1.0f / 100.0f); // 100 FPS
+            else
+                this.TargetElapsedTime = TimeSpan.FromSeconds(1.0f / 60f); // 60 FPS (default)
+
+            fpsCounter.Update(gameTime);
+
 
             base.Update(gameTime);
         }
@@ -111,12 +164,14 @@ namespace _1Behaviour_Demo
         {
             GraphicsDevice.Clear(new Color(96, 96, 111)); // blue-ish gray
 
-            spriteBatch.Begin();
+            spriteBatch.Begin(SpriteSortMode.BackToFront, BlendState.AlphaBlend);
 
             foreach (Actor actor in Actor.Actors)
             {
                 actor.Draw(spriteBatch);
             }
+
+            fpsCounter.Draw(gameTime);
 
             spriteBatch.End();
 

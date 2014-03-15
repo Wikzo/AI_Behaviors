@@ -37,6 +37,7 @@
   <ItemGroup>
     <Compile Include="Actor.cs" />
     <Compile Include="Behavior.cs" />
+    <Compile Include="FPSCounter.cs" />
     <Compile Include="Game1.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -62,8 +63,15 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Icon.ico" />
+    <Content Include="SDL.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Content Include="Content\Tahoma.spritefont">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
