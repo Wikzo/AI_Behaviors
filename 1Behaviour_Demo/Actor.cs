@@ -21,6 +21,7 @@ namespace _1Behaviour_Demo
         public Vector2 Origin;
         public float DrawDepth;
         public bool IsPlayer;
+        private bool spritePointingUpwards;
         public List<Behavior> BehaviorList = new List<Behavior>();
 
         public static Vector2 GetRandomPosition(int rangeX, int rangeY)
@@ -62,8 +63,24 @@ namespace _1Behaviour_Demo
             this.Origin = new Vector2(texture.Width / 2, texture.Height / 2);
             this.DrawDepth = 1;
             this.IsPlayer = false;
+            this.spritePointingUpwards = true;
 
             this.Position = new Vector2(Game1.ScreenWidth / 2,  Game1.ScreenHeight / 2);
+            this.Direction = new Vector2(0, -1);
+        }
+
+        public Actor(Color color, Texture2D texture, bool spritePointingUpwards)
+        {
+            Actors.Add(this);
+
+            this.Color = color;
+            this.Texture = texture;
+            this.Origin = new Vector2(texture.Width / 2, texture.Height / 2);
+            this.DrawDepth = 1;
+            this.IsPlayer = false;
+            this.spritePointingUpwards = spritePointingUpwards;
+
+            this.Position = new Vector2(Game1.ScreenWidth / 2, Game1.ScreenHeight / 2);
             this.Direction = new Vector2(0, -1);
         }
 
@@ -82,42 +99,45 @@ namespace _1Behaviour_Demo
         public void Draw(SpriteBatch spriteBatch)
         {
             // convert vector2 to radians
-            float rotation = (float) Math.Atan2(this.Direction.Y, this.Direction.X);// +MathHelper.PiOver2; // add 90 degree offset to orientate sprite correctly
-            
+            float rotation = (float) Math.Atan2(this.Direction.Y, this.Direction.X); // add 90 degree offset to orientate sprite correctly
+
+            if (this.spritePointingUpwards) // rotate sprite
+                rotation += +MathHelper.PiOver2;
+
             spriteBatch.Draw(this.Texture, this.Position, null, this.Color, rotation, this.Origin, 1f,
                              SpriteEffects.None, this.DrawDepth);
 
-            // screen wrapping physically
-            if (Position.X < -Texture.Width) Position.X += Game1.ScreenWidth;
-            if (Position.X > Game1.ScreenWidth) Position.X -= Game1.ScreenWidth;
+            // TODO: small flickr when switching between the two
+            // SCREEN WRAPPING OF ORIGINAL (physical)
+            if (Position.X - Texture.Width/2 > Game1.ScreenWidth) Position.X -= Game1.ScreenWidth;//= -Texture.Width/2;
+            if (Position.X + Texture.Width/2 < 0) Position.X += Game1.ScreenWidth;// = Game1.ScreenWidth + Texture.Width/2;
 
-            if (Position.Y < -Texture.Height) Position.Y += Game1.ScreenHeight;
-            if (Position.Y > Game1.ScreenHeight) Position.Y -= Game1.ScreenHeight;
+            if (Position.Y - Texture.Height / 2 > Game1.ScreenHeight) Position.Y -= Game1.ScreenHeight;
+            if (Position.Y + Texture.Height / 2 < 0) Position.Y += Game1.ScreenHeight;// = Game1.ScreenWidth + Texture.Width/2;
 
-            // SCREEN WRAPPING VISUAL START ------------------------
+            // SCREEN WRAPPING VISUAL (clone) START ------------------------
             // check horizontal screen wrapping
-            if (this.Position.X < 0)
+            if (this.Position.X - Texture.Width / 2 < 0)
             {
-                spriteBatch.Draw(this.Texture, new Vector2(this.Position.X + Game1.ScreenWidth, this.Position.Y), 
+                spriteBatch.Draw(this.Texture, new Vector2(this.Position.X + Game1.ScreenWidth, this.Position.Y),
                     null, this.Color, rotation, this.Origin, 1f,
                              SpriteEffects.None, this.DrawDepth);
             }
-            else if (this.Position.X + this.Texture.Width > Game1.ScreenWidth)
+            else if (this.Position.X + Texture.Width / 2 > Game1.ScreenWidth)
             {
                 spriteBatch.Draw(this.Texture, new Vector2(this.Position.X - Game1.ScreenWidth, this.Position.Y),
                     null, this.Color, rotation, this.Origin, 1f,
                              SpriteEffects.None, this.DrawDepth);
+
             }
-
             // check vertical screen wrapping
-            if (this.Position.Y < 0)
+            if (this.Position.Y - Texture.Height / 2 < 0)
             {
-
                 spriteBatch.Draw(this.Texture, new Vector2(this.Position.X, this.Position.Y + Game1.ScreenHeight),
                     null, this.Color, rotation, this.Origin, 1f,
                              SpriteEffects.None, this.DrawDepth);
             }
-            else if (this.Position.Y + this.Texture.Height > Game1.ScreenHeight)
+            else if (this.Position.Y + this.Texture.Height / 2 > Game1.ScreenHeight)
             {
                 spriteBatch.Draw(this.Texture, new Vector2(this.Position.X, this.Position.Y - Game1.ScreenHeight),
                     null, this.Color, rotation, this.Origin, 1f,

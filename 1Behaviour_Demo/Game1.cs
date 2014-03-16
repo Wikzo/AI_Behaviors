@@ -65,6 +65,16 @@ namespace _1Behaviour_Demo
 
             fpsCounter = new FPSCounter(this, spriteBatch, font);
 
+
+            // dummy blocks
+            Texture2D block1 = Content.Load<Texture2D>("1_block");
+            Actor blok1 = new Actor(Color.White, block1, false);
+            blok1.Speed = 5f;
+            blok1.Position = Actor.GetRandomPosition(ScreenWidth, ScreenHeight);
+            blok1.BehaviorList.Add(new BehaviorConstant(0.1f, new Vector2(1f, 0)));
+            //blok1.BehaviorList.Add(new BehaviorGamePad(1));
+            //blok1.BehaviorList.Add(new BehaviorWander(0.05f, 60));
+
             Texture2D arrowTexture = Content.Load<Texture2D>("arrow");
 
             // set up leader actor
@@ -81,7 +91,7 @@ namespace _1Behaviour_Demo
             // set up a 10 drone actors
             BehavoirSeek seek = new BehavoirSeek(0.05f, leader);
 
-            for (int i = 0; i < 100; i++)
+            for (int i = 0; i < 10000; i++)
             {
                 Actor drone = new Actor(Color.White, arrowTexture);
                 drone.Color = Actor.GetRandomColor();
@@ -132,21 +142,23 @@ namespace _1Behaviour_Demo
                 
                 actor.Update();
 
-                /*if (Keyboard.GetState().IsKeyDown(Keys.Left))
-                    actor.Position += new Vector2(-1, 0);
+                if (Keyboard.GetState().IsKeyDown(Keys.Left))
+                    actor.Position += new Vector2(-2, 0);
 
                 if (Keyboard.GetState().IsKeyDown(Keys.Right))
-                    actor.Position += new Vector2(1, 0);
+                    actor.Position += new Vector2(2, 0);
 
                 if (Keyboard.GetState().IsKeyDown(Keys.Up))
-                    actor.Position += new Vector2(0, -1);
+                    actor.Position += new Vector2(0, -2);
 
                 if (Keyboard.GetState().IsKeyDown(Keys.Down))
-                    actor.Position += new Vector2(0, 1);*/
+                    actor.Position += new Vector2(0, 2);
             }
 
             if (GamePad.GetState(PlayerIndex.One).Triggers.Right >= 0.2f)
                 this.TargetElapsedTime = TimeSpan.FromSeconds(1.0f / 100.0f); // 100 FPS
+            else if (GamePad.GetState(PlayerIndex.One).Triggers.Left >= 0.2f)
+                this.TargetElapsedTime = TimeSpan.FromSeconds(1.0f / 10); // 10 FPS
             else
                 this.TargetElapsedTime = TimeSpan.FromSeconds(1.0f / 60f); // 60 FPS (default)
 
